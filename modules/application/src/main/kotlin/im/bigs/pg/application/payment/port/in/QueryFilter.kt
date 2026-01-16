@@ -18,4 +18,3 @@ data class QueryFilter(
     val cursor: String? = null,
     val limit: Int = 20,
 )
-

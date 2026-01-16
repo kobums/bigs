@@ -14,4 +14,3 @@ data class QueryResult(
     val nextCursor: String?,
     val hasNext: Boolean,
 )
-
