@@ -1,0 +1,255 @@
+{
+  "info": {
+    "name": "Payment Gateway API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "cursor",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Payment Create",
+      "item": [
+        {
+          "name": "1. 성공 - MockPG (partnerId=1)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partnerId\": 1,\n  \"amount\": 10000,\n  \"cardNumber\": \"1111-1111-1111-1111\",\n  \"birthDate\": \"19900101\",\n  \"expiry\": \"1227\",\n  \"cardPassword\": \"12\",\n  \"productName\": \"테스트상품\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"]
+            }
+          }
+        },
+        {
+          "name": "2. 성공 200 - TestPG (partnerId=2, 카드 1111)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partnerId\": 2,\n  \"amount\": 15000,\n  \"cardNumber\": \"1111-1111-1111-1111\",\n  \"birthDate\": \"19900101\",\n  \"expiry\": \"1227\",\n  \"cardPassword\": \"12\",\n  \"productName\": \"외부PG테스트\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"]
+            }
+          }
+        },
+        {
+          "name": "3. 실패 422 - TestPG (카드 2222, 도난/분실)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partnerId\": 2,\n  \"amount\": 1001,\n  \"cardNumber\": \"2222-2222-2222-2222\",\n  \"birthDate\": \"19900101\",\n  \"expiry\": \"1227\",\n  \"cardPassword\": \"12\",\n  \"productName\": \"실패테스트-도난분실\"\n}"
+            },
+            "description": "errorCode: STOLEN_OR_LOST (1001)",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"]
+            }
+          }
+        },
+        {
+          "name": "4. 실패 422 - TestPG (카드 2222, 한도초과)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partnerId\": 2,\n  \"amount\": 1002,\n  \"cardNumber\": \"2222-2222-2222-2222\",\n  \"birthDate\": \"19900101\",\n  \"expiry\": \"1227\",\n  \"cardPassword\": \"12\",\n  \"productName\": \"실패테스트-한도초과\"\n}"
+            },
+            "description": "errorCode: INSUFFICIENT_LIMIT (1002)",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"]
+            }
+          }
+        },
+        {
+          "name": "5. 실패 422 - TestPG (카드 2222, 정지/만료)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partnerId\": 2,\n  \"amount\": 1003,\n  \"cardNumber\": \"2222-2222-2222-2222\",\n  \"birthDate\": \"19900101\",\n  \"expiry\": \"1227\",\n  \"cardPassword\": \"12\",\n  \"productName\": \"실패테스트-정지만료\"\n}"
+            },
+            "description": "errorCode: EXPIRED_OR_BLOCKED (1003)",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"]
+            }
+          }
+        },
+        {
+          "name": "6. 실패 422 - TestPG (카드 2222, 위조/변조)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partnerId\": 2,\n  \"amount\": 1004,\n  \"cardNumber\": \"2222-2222-2222-2222\",\n  \"birthDate\": \"19900101\",\n  \"expiry\": \"1227\",\n  \"cardPassword\": \"12\",\n  \"productName\": \"실패테스트-위조변조\"\n}"
+            },
+            "description": "errorCode: TAMPERED_CARD (1004)",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"]
+            }
+          }
+        },
+        {
+          "name": "7. 실패 400 - 존재하지 않는 Partner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partnerId\": 999,\n  \"amount\": 10000,\n  \"cardNumber\": \"1111-1111-1111-1111\",\n  \"birthDate\": \"19900101\",\n  \"expiry\": \"1227\",\n  \"cardPassword\": \"12\",\n  \"productName\": \"테스트\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payment Query",
+      "item": [
+        {
+          "name": "1. 전체 조회",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"]
+            }
+          }
+        },
+        {
+          "name": "2. partnerId 필터",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments?partnerId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"],
+              "query": [{"key": "partnerId", "value": "1"}]
+            }
+          }
+        },
+        {
+          "name": "3. status 필터",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments?status=APPROVED",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"],
+              "query": [{"key": "status", "value": "APPROVED"}]
+            }
+          }
+        },
+        {
+          "name": "4. 기간 필터 (from/to)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments?from=2024-01-01 00:00:00&to=2027-12-31 23:59:59",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"],
+              "query": [
+                {"key": "from", "value": "2024-01-01 00:00:00"},
+                {"key": "to", "value": "2027-12-31 23:59:59"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "5. 페이지네이션 (limit)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments?limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"],
+              "query": [{"key": "limit", "value": "5"}]
+            }
+          }
+        },
+        {
+          "name": "6. 커서 페이지네이션 (cursor)",
+          "request": {
+            "method": "GET",
+            "description": "이전 응답의 nextCursor 값을 cursor 파라미터에 넣어서 다음 페이지 조회",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments?limit=5&cursor={{cursor}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"],
+              "query": [
+                {"key": "limit", "value": "5"},
+                {"key": "cursor", "value": "{{cursor}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "7. 복합 필터 (전체 파라미터)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments?partnerId=1&status=APPROVED&from=2024-01-01 00:00:00&to=2027-12-31 23:59:59&limit=20&cursor=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"],
+              "query": [
+                {"key": "partnerId", "value": "1"},
+                {"key": "status", "value": "APPROVED"},
+                {"key": "from", "value": "2024-01-01 00:00:00"},
+                {"key": "to", "value": "2027-12-31 23:59:59"},
+                {"key": "limit", "value": "20"},
+                {"key": "cursor", "value": ""}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

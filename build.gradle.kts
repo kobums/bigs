@@ -16,18 +16,16 @@ allprojects {
     group = "kr.thedream"
     version = "0.0.1-SNAPSHOT"
 
-    java { toolchain { languageVersion = JavaLanguageVersion.of(22) } }
+    java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
 
     kotlin {
         compilerOptions {
             freeCompilerArgs.addAll("-Xjsr305=strict")
-            // Java 22 툴체인을 사용하되, 바이트코드 타겟은 21로 고정(컴파일러 호환성)
             @Suppress("UnstableApiUsage")
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
         }
     }
 
-    // Java 컴파일러도 release 21로 정렬하여 Kotlin과 타겟 일치
     tasks.withType<JavaCompile>().configureEach { options.release.set(21) }
 
     dependencies {
