@@ -19,11 +19,11 @@ class FeePolicyEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
     @Column(nullable = false)
-    var partnerId: Long,
+    var partnerId: Long = 0L,
     @Column(nullable = false)
-    var effectiveFrom: Instant,
+    var effectiveFrom: Instant = Instant.EPOCH,
     @Column(nullable = false, precision = 10, scale = 6)
-    var percentage: BigDecimal,
+    var percentage: BigDecimal = BigDecimal.ZERO,
     @Column(precision = 15, scale = 0)
     var fixedFee: BigDecimal? = null,
 )

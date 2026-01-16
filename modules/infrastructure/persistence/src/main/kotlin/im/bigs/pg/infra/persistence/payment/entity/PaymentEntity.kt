@@ -19,27 +19,27 @@ class PaymentEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
     @Column(nullable = false)
-    var partnerId: Long,
+    var partnerId: Long = 0L,
     @Column(nullable = false, precision = 15, scale = 0)
-    var amount: BigDecimal,
+    var amount: BigDecimal = BigDecimal.ZERO,
     @Column(nullable = false, precision = 10, scale = 6)
-    var appliedFeeRate: BigDecimal,
+    var appliedFeeRate: BigDecimal = BigDecimal.ZERO,
     @Column(nullable = false, precision = 15, scale = 0)
-    var feeAmount: BigDecimal,
+    var feeAmount: BigDecimal = BigDecimal.ZERO,
     @Column(nullable = false, precision = 15, scale = 0)
-    var netAmount: BigDecimal,
+    var netAmount: BigDecimal = BigDecimal.ZERO,
     @Column(length = 8)
     var cardBin: String? = null,
     @Column(length = 4)
     var cardLast4: String? = null,
     @Column(nullable = false, length = 32)
-    var approvalCode: String,
+    var approvalCode: String = "",
     @Column(nullable = false)
-    var approvedAt: Instant,
+    var approvedAt: Instant = Instant.EPOCH,
     @Column(nullable = false, length = 20)
-    var status: String,
+    var status: String = "",
     @Column(nullable = false)
-    var createdAt: Instant,
+    var createdAt: Instant = Instant.EPOCH,
     @Column(nullable = false)
-    var updatedAt: Instant,
+    var updatedAt: Instant = Instant.EPOCH,
 )
