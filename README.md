@@ -135,6 +135,150 @@ GET /api/v1/payments?partnerId=1&status=APPROVED&from=2025-01-01T00:00:00Z&to=20
 ## 11. 참고자료
 - [과제 내 연동 대상 API 문서](https://api-test-pg.bigs.im/docs/index.html)
 
+---
+
+## 사용 가이드 (Quick Start)
+
+### 서버 실행
+```bash
+./gradlew :modules:bootstrap:api-payment-gateway:bootRun
+```
+서버가 `http://localhost:8080`에서 실행됩니다. (H2 인메모리 DB 사용, 별도 설치 불필요)
+
+### API 테스트
+
+#### 1) 결제 생성 (POST /api/v1/payments)
+
+**partnerId=1 (MockPG - 내부 모의 처리):**
+```bash
+curl -X POST http://localhost:8080/api/v1/payments \
+  -H "Content-Type: application/json" \
+  -d '{
+    "partnerId": 1,
+    "amount": 10000,
+    "cardNumber": "1234-5678-9012-3456",
+    "birthDate": "19900101",
+    "expiry": "1227",
+    "cardPassword": "12",
+    "productName": "테스트 상품"
+  }'
+```
+
+**partnerId=2 (TestPG - 외부 API 연동):**
+```bash
+curl -X POST http://localhost:8080/api/v1/payments \
+  -H "Content-Type: application/json" \
+  -d '{
+    "partnerId": 2,
+    "amount": 15000,
+    "cardNumber": "9876-5432-1098-7654",
+    "birthDate": "19851231",
+    "expiry": "0628",
+    "cardPassword": "00",
+    "productName": "외부 PG 테스트"
+  }'
+```
+
+**응답 예시:**
+```json
+{
+  "id": 1,
+  "partnerId": 1,
+  "amount": 10000,
+  "appliedFeeRate": 0.0300,
+  "feeAmount": 400,
+  "netAmount": 9600,
+  "cardBin": "123456",
+  "cardLast4": "3456",
+  "approvalCode": "APR-0116-XXXXXX",
+  "approvedAt": "2025-01-16T12:00:00",
+  "status": "APPROVED",
+  "createdAt": "2025-01-16T12:00:00"
+}
+```
+
+#### 2) 결제 조회 (GET /api/v1/payments)
+
+**기본 조회:**
+```bash
+curl "http://localhost:8080/api/v1/payments"
+```
+
+**필터 적용:**
+```bash
+curl "http://localhost:8080/api/v1/payments?partnerId=1&status=APPROVED&limit=10"
+```
+
+**기간 필터:**
+```bash
+curl "http://localhost:8080/api/v1/payments?from=2025-01-01T00:00:00Z&to=2025-01-31T23:59:59Z"
+```
+
+**커서 페이지네이션:**
+```bash
+# 첫 페이지
+curl "http://localhost:8080/api/v1/payments?limit=5"
+
+# 다음 페이지 (응답의 nextCursor 값 사용)
+curl "http://localhost:8080/api/v1/payments?limit=5&cursor=MTczNzAyMDgwMDAwMDo1"
+```
+
+**응답 예시:**
+```json
+{
+  "items": [...],
+  "summary": {
+    "count": 35,
+    "totalAmount": 350000,
+    "totalNetAmount": 336000
+  },
+  "nextCursor": "MTczNzAyMDgwMDAwMDoxMA",
+  "hasNext": true
+}
+```
+
+### 쿼리 파라미터
+
+| 파라미터 | 타입 | 설명 | 예시 |
+|---------|------|------|------|
+| partnerId | Long | 제휴사 ID | `1`, `2` |
+| status | String | 결제 상태 | `APPROVED`, `FAILED` |
+| from | DateTime | 조회 시작 시간 (ISO8601) | `2025-01-01T00:00:00Z` |
+| to | DateTime | 조회 종료 시간 (ISO8601) | `2025-01-31T23:59:59Z` |
+| limit | Int | 페이지 크기 (기본 20) | `10`, `50` |
+| cursor | String | 페이지네이션 커서 | `MTczNzAyMDgwMDAwMDo1` |
+
+### Postman 컬렉션
+
+`postman_collection.json` 파일을 Postman에 import하여 모든 API를 테스트할 수 있습니다.
+
+### 에러 응답
+
+**400 Bad Request** - 잘못된 요청
+```json
+{"code": 400, "errorCode": "BAD_REQUEST", "message": "Partner not found: 999"}
+```
+
+**401 Unauthorized** - PG 인증 실패 (partnerId=2)
+```json
+{"code": 401, "errorCode": "UNREGISTERED_API_KEY", "message": "미등록 API-KEY"}
+```
+
+**422 Unprocessable Entity** - PG 승인 실패 (partnerId=2)
+```json
+{"code": 422, "errorCode": "INSUFFICIENT_LIMIT", "message": "한도가 초과되었습니다.", "referenceId": "ref-123"}
+```
+
+### 테스트 실행
+```bash
+# 전체 테스트
+./gradlew test
+
+# 개별 테스트
+./gradlew :modules:application:test --tests "im.bigs.pg.application.payment.service.PaymentServiceTest"
+./gradlew :modules:domain:test --tests "im.bigs.pg.domain.calculation.FeeCalculatorTest"
+```
+
 ## 12. 주의사항
 - 전달한 본 프로젝트는 정상동작하지 않습니다. 요구사항을 포함해, 정상 동작을 목표로 진행하세요.
 - 본 과제와 관련한 어떠한 질문도 받지 않습니다.
