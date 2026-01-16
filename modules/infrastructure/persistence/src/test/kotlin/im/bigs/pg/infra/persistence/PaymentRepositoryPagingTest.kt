@@ -16,12 +16,12 @@ import kotlin.test.assertTrue
 
 @DataJpaTest
 @ContextConfiguration(classes = [JpaConfig::class])
-class 결제저장소커서페이징Test @Autowired constructor(
+class PaymentRepositoryPagingTest @Autowired constructor(
     val paymentRepo: PaymentJpaRepository,
 ) {
     @Test
     @DisplayName("커서 페이징과 통계가 일관되어야 한다")
-    fun `커서 페이징과 통계가 일관되어야 한다`() {
+    fun `should have consistent cursor paging and statistics`() {
         val baseTs = Instant.parse("2024-01-01T00:00:00Z")
         repeat(35) { i ->
             paymentRepo.save(

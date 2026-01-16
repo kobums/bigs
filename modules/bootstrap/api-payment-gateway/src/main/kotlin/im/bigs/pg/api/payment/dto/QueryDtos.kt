@@ -14,4 +14,3 @@ data class Summary(
     val totalAmount: BigDecimal,
     val totalNetAmount: BigDecimal,
 )
-
